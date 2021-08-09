@@ -1,7 +1,7 @@
 /*
  * @Author: xph
  * @Date: 2021-08-04 00:41:49
- * @LastEditTime: 2021-08-04 00:46:41
+ * @LastEditTime: 2021-08-09 22:52:17
  * @LastEditors: Please set LastEditors
  * @Description: 非易失性存储器管理
  * @FilePath: \Flash_Management\Flash_Management.h
@@ -9,27 +9,25 @@
 #ifndef __FLASH_MANAGEMENT_H
 #define __FLASH_MANAGEMENT_H
 
-/*模块A中有这样一个结构体需要非易失存储*/
-typedef struct _t_paras
+typedef enum
 {
-    int tmpA; /*语言种类*/
-} T_PARAS;
+    FLASH_IN = 0,
+    FLASH_NOR,
+    EEPROM,
+    FLASH_OFF,
+} NV_MEN_t;
 
-/*模块B中有这样一个结构体需要非易失存储*/
-typedef struct _t_pid
+typedef struct
 {
-    int tmpB; /*语言种类*/
-} T_PID;
-
-typedef struct _t_nv_layout
-{
-    void *pElement; /*参数地址*/
-    int length;     /*参数长度*/
-} T_NV_LAYOUT;
+    void *pElement;      /*参数数据地址*/
+    NV_MEN_t memSel;     /*存储器选择*/
+    unsigned int addr;   /*参数存储目标地址*/
+    unsigned int length; /*参数数据长度*/
+} NV_LAYOUT_t;
 
 /*参数映射表记录条数*/
-#define NV_RECORD_NUMBER(nvList) (sizeof(nvList) / sizeof(T_NV_LAYOUT))
-void nv_load(T_NV_LAYOUT *pLayout, int nvAddr, int number);  //加载内存数据
-void nv_store(T_NV_LAYOUT *pLayout, int nvAddr, int number); //存储内存数据
+#define NV_RECORD_NUMBER(nvList) (sizeof(nvList) / sizeof(NV_LAYOUT_t))
+void nv_load(NV_LAYOUT_t *pLayout, unsigned int number);  //加载内存数据
+void nv_store(NV_LAYOUT_t *pLayout, unsigned int number); //存储内存数据
 
 #endif

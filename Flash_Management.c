@@ -1,7 +1,7 @@
 /*
  * @Author: xph
  * @Date: 2021-08-04 00:02:34
- * @LastEditTime: 2021-08-04 00:47:34
+ * @LastEditTime: 2021-08-09 22:52:14
  * @LastEditors: Please set LastEditors
  * @Description: 非易失性存储器管理
  * @FilePath: \Flash_Management\Flash_Management.c
@@ -14,48 +14,98 @@
 #include "math.h"
 #include "Flash_Management.h"
 
-void nv_load(T_NV_LAYOUT *pLayout, int nvAddr, int number)
+/**
+ * @description: 
+ * @param {NV_LAYOUT_t} *pLayout 存储信息
+ * @param {unsigned int} number 存储信息块数量
+ * @return {*}
+ */
+void nv_load(NV_LAYOUT_t *pLayout, unsigned int number)
 {
-    int i;
-    for (i = 0, nvAddr = 0; i < number; ++i, ++nvAddr)
+    unsigned int i;
+    for (i = 0; i < number; i++)
     {
-        if (nvAddr)
+        switch (pLayout[i].memSel)
         {
+        case FLASH_IN:
+        case FLASH_NOR:
+        case EEPROM:
+        case FLASH_OFF:
+            printf("memery select = %d\n", pLayout[i].memSel);
+            printf("load addr = %d\n", pLayout[i].addr);
+            printf("load length = %d\n", pLayout[i].length);
+            printf("load data = %X\n", *(unsigned int *)pLayout[i].pElement);
+
+            break;
+
+        default:
+            break;
         }
-        printf("data = %X\n", *(unsigned int *)pLayout[i].pElement);
     }
+    printf("\n");
 }
 
-void nv_store(T_NV_LAYOUT *pLayout, int nvAddr, int number)
+/**
+ * @description: 
+ * @param {NV_LAYOUT_t} *pLayout 读取信息
+ * @param {unsigned int} number 读取信息块数量
+ * @return {*}
+ */
+void nv_store(NV_LAYOUT_t *pLayout, unsigned int number)
 {
-    int i;
-    for (i = 0, nvAddr = 0; i < number; ++i, ++nvAddr)
+    unsigned int i;
+    for (i = 0; i < number; i++)
     {
-        if (nvAddr)
+        switch (pLayout[i].memSel)
         {
+        case FLASH_IN:
+        case FLASH_NOR:
+        case EEPROM:
+        case FLASH_OFF:
+            printf("memery select = %d\n", pLayout[i].memSel);
+            printf("store addr = %d\n", pLayout[i].addr);
+            printf("store length = %d\n", pLayout[i].length);
+            printf("store data = %X\n", *(unsigned int *)pLayout[i].pElement);
+
+            break;
+
+        default:
+            break;
         }
-        printf("data2 = %X\n", *(unsigned int *)pLayout[i].pElement);
     }
+    printf("\n");
 }
+
+/*模块A中有这样一个结构体需要非易失存储*/
+typedef struct
+{
+    int tmpA; /*语言种类*/
+} PARAS_t;
+
+/*模块B中有这样一个结构体需要非易失存储*/
+typedef struct
+{
+    int tmpB; /*语言种类*/
+} PID_t;
 
 int main()
 {
-    T_PARAS sysParas = {
-        .tmpA = 1};
-    T_PID pidParas = {
-        .tmpB = 2};
-    int lengthA = 0;
-    int lengthB = 0;
+    PARAS_t sysParas = {
+        .tmpA = 3};
+    PID_t pidParas = {
+        .tmpB = 4};
+    unsigned int lengthA = 0;
+    unsigned int lengthB = 0;
     /*参数映射表*/
-    T_NV_LAYOUT nvLayout[] = {
-        [0] = {&sysParas, sizeof(T_PARAS)}, /*参数映射记录*/
-        [1] = {&pidParas, sizeof(T_PID)}};
+    NV_LAYOUT_t nvLayout[] = {
+        [0] = {&sysParas, EEPROM, 1, sizeof(PARAS_t)}, /*参数映射记录*/
+        [1] = {&pidParas, FLASH_IN, 1, sizeof(PID_t)}};
 
     getch();
     lengthA = NV_RECORD_NUMBER(nvLayout);
     lengthB = NV_RECORD_NUMBER(nvLayout);
-    nv_load(nvLayout, 1, lengthA);
-    nv_store(nvLayout, 1, lengthB);
+    nv_load(nvLayout, lengthA);
+    nv_store(nvLayout, lengthB);
 
     getch();
     return 0;
