@@ -1,13 +1,14 @@
 /*
  * @Author: xph
  * @Date: 2021-08-04 00:41:49
- * @LastEditTime: 2021-08-09 22:52:17
+ * @LastEditTime: 2021-08-09 23:24:56
  * @LastEditors: Please set LastEditors
  * @Description: 非易失性存储器管理
  * @FilePath: \Flash_Management\Flash_Management.h
  */
 #ifndef __FLASH_MANAGEMENT_H
 #define __FLASH_MANAGEMENT_H
+#define ENABLE_NV_LAYOUT 0
 
 typedef enum
 {
@@ -17,6 +18,7 @@ typedef enum
     FLASH_OFF,
 } NV_MEN_t;
 
+#if ENABLE_NV_LAYOUT
 typedef struct
 {
     void *pElement;      /*参数数据地址*/
@@ -29,5 +31,10 @@ typedef struct
 #define NV_RECORD_NUMBER(nvList) (sizeof(nvList) / sizeof(NV_LAYOUT_t))
 void nv_load(NV_LAYOUT_t *pLayout, unsigned int number);  //加载内存数据
 void nv_store(NV_LAYOUT_t *pLayout, unsigned int number); //存储内存数据
+#else
+
+void nv_load(void *pElement, NV_MEN_t memSel, unsigned int addr, unsigned int length);
+void nv_store(void *pElement, NV_MEN_t memSel, unsigned int addr, unsigned int length);
+#endif
 
 #endif
